@@ -1,0 +1,7 @@
+{
+  "name": "E1637 Parking Management",
+  "description": "Sistema de gestión de estacionamiento de alta eficiencia para Mercado 4, Asunción.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
