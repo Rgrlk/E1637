@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>E1637 - Operación</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-black text-white max-w-md mx-auto min-h-screen p-4 space-y-4">
+  <h1 class="text-xl font-bold text-yellow-400">E1637 - Operación (V1)</h1>
+
+  <!-- STATUS -->
+  <div id="status" class="text-xs text-gray-300"></div>
+
+  <!-- PANTALLA: SELECCIÓN DE ROL -->
+  <section id="screenRole" class="border border-gray-800 rounded-xl p-4 space-y-3">
+    <h2 class="font-bold text-yellow-400">Acceso</h2>
+    <p class="text-sm text-gray-300">
+      Operador: entra sin contraseña.<br/>
+      Admin: entra con email y contraseña.
+    </p>
+
+    <button id="btnGoOperador" class="w-full bg-yellow-400 text-black font-bold rounded p-3">
+      Soy OPERADOR (sin contraseña)
+    </button>
+
+    <button id="btnGoAdmin" class="w-full bg-gray-800 text-white font-bold rounded p-3 border border-gray-700">
+      Soy ADMIN (con contraseña)
+    </button>
+
+    <div id="roleMsg" class="text-xs text-red-300"></div>
+  </section>
+
+  <!-- PANTALLA: LOGIN ADMIN -->
+  <section id="screenAdminLogin" class="hidden border border-gray-800 rounded-xl p-4 space-y-3">
+    <h2 class="font-bold text-yellow-400">Login Admin</h2>
+
+    <input id="adminEmail" class="w-full bg-black border border-gray-700 rounded p-2 text-white"
+           placeholder="Email admin" />
+
+    <input id="adminPass" type="password" class="w-full bg-black border border-gray-700 rounded p-2 text-white"
+           placeholder="Contraseña" />
+
+    <button id="btnAdminLogin" class="w-full bg-yellow-400 text-black font-bold rounded p-3">
+      Iniciar sesión (Admin)
+    </button>
+
+    <button id="btnBackRole" class="w-full bg-gray-900 text-white font-bold rounded p-3 border border-gray-700">
+      Volver
+    </button>
+
+    <div id="adminMsg" class="text-xs text-red-300"></div>
+  </section>
+
+  <!-- PANTALLA: OPERACIÓN -->
+  <section id="screenOps" class="hidden space-y-4">
+
+    <!-- CONFIG INFO -->
+    <section class="border border-gray-800 rounded-xl p-4 space-y-2">
+      <h2 class="font-bold text-yellow-400">Configuración</h2>
+      <div class="text-sm text-gray-200">
+        <div>Tarifa: <span id="cfgTarifa">-</span></div>
+        <div>Baño: <span id="cfgBano">-</span></div>
+      </div>
+
+      <div id="cfgTransfer" class="hidden text-sm text-gray-200 border border-gray-800 rounded-lg p-3">
+        <div class="font-bold text-yellow-300 mb-2">Datos para Transferencia</div>
+        <div><span class="text-gray-400">Banco:</span> <span id="cfgBanco">-</span></div>
+        <div><span class="text-gray-400">Cuenta:</span> <span id="cfgCuenta">-</span></div>
+        <div><span class="text-gray-400">Titular:</span> <span id="cfgTitular">-</span></div>
+      </div>
+
+      <button id="btnLogout" class="w-full bg-gray-900 text-white font-bold rounded p-3 border border-gray-700">
+        Cerrar sesión
+      </button>
+    </section>
+
+    <!-- ENTRADA -->
+    <section class="border border-gray-800 rounded-xl p-4 space-y-3">
+      <h2 class="font-bold text-yellow-400">Entrada</h2>
+
+      <div class="grid grid-cols-2 gap-2">
+        <select id="tipo" class="bg-black border border-gray-700 rounded p-2 text-white">
+          <option value="AUTO">AUTO</option>
+          <option value="MOTO">MOTO</option>
+          <option value="SUV">SUV</option>
+          <option value="CAMION">CAMIÓN</option>
+          <option value="MENSUAL">MENSUAL</option>
+        </select>
+
+        <input id="slot" class="bg-black border border-gray-700 rounded p-2 text-white"
+               placeholder="Slot (obligatorio)" />
+      </div>
+
+      <input id="placa" class="w-full bg-black border border-gray-700 rounded p-2 text-white"
+             placeholder="Patente / Chapa (ej: ABC-1234)" />
+
+      <button id="btnEntrada" class="w-full bg-yellow-400 text-black font-bold rounded p-3">
+        Registrar Entrada
+      </button>
+
+      <div id="entradaMsg" class="text-xs text-gray-300"></div>
+    </section>
+
+    <!-- SALIDA / COBRO -->
+    <section class="border border-gray-800 rounded-xl p-4 space-y-3">
+      <h2 class="font-bold text-yellow-400">Salida / Cobro</h2>
+
+      <input id="idEstadia" class="w-full bg-black border border-gray-700 rounded p-2 text-white"
+             placeholder="ID de estadía (lo da al registrar entrada)" />
+
+      <select id="metodoPago" class="w-full bg-black border border-gray-700 rounded p-2 text-white">
+        <option value="EFECTIVO">EFECTIVO</option>
+        <option value="TRANSFERENCIA">TRANSFERENCIA</option>
+      </select>
+
+      <button id="btnSalida" class="w-full bg-yellow-400 text-black font-bold rounded p-3">
+        Registrar Salida (cobra si no es mensual)
+      </button>
+
+      <div id="salidaMsg" class="text-xs text-gray-300"></div>
+    </section>
+
+    <!-- BAÑO -->
+    <section class="border border-gray-800 rounded-xl p-4 space-y-3">
+      <h2 class="font-bold text-yellow-400">Baño</h2>
+
+      <input id="banoPersonas" type="number" min="1" value="1"
+             class="w-full bg-black border border-gray-700 rounded p-2 text-white" />
+
+      <button id="btnBano" class="w-full bg-yellow-400 text-black font-bold rounded p-3">
+        Registrar Baño (personas × precio)
+      </button>
+
+      <div id="banoMsg" class="text-xs text-gray-300"></div>
+    </section>
+
+  </section>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+    import {
+      getAuth,
+      signInAnonymously,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+    import {
+      getFirestore,
+      enableIndexedDbPersistence,
+      collection,
+      addDoc,
+      doc,
+      getDoc,
+      updateDoc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+
+    // CONFIG Firebase (tu config exacto)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCwozOPQddl6qTpZDVhzOBmZzSn6cgw_fY",
+      authDomain: "e1637-ea892.firebaseapp.com",
+      projectId: "e1637-ea892",
+      storageBucket: "e1637-ea892.firebasestorage.app",
+      messagingSenderId: "394469017962",
+      appId: "1:394469017962:web:079386d8ac4b94a662fd13"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // OFFLINE (si el navegador lo permite)
+    enableIndexedDbPersistence(db).catch((err) => {
+      console.log("Offline persistence no activada:", err?.code || err);
+    });
+
+    // UI refs
+    const status = document.getElementById("status");
+
+    const screenRole = document.getElementById("screenRole");
+    const screenAdminLogin = document.getElementById("screenAdminLogin");
+    const screenOps = document.getElementById("screenOps");
+
+    const roleMsg = document.getElementById("roleMsg");
+    const adminMsg = document.getElementById("adminMsg");
+
+    const cfgTarifa = document.getElementById("cfgTarifa");
+    const cfgBano = document.getElementById("cfgBano");
+    const cfgTransfer = document.getElementById("cfgTransfer");
+    const cfgBanco = document.getElementById("cfgBanco");
+    const cfgCuenta = document.getElementById("cfgCuenta");
+    const cfgTitular = document.getElementById("cfgTitular");
+
+    let cfg = {
+      tarifa_hora: 5000,
+      bano_precio: 2000,
+      transfer_banco: "",
+      transfer_cuenta: "",
+      transfer_titular: ""
+    };
+
+    function setStatus(msg) { status.textContent = msg; }
+
+    function showScreen(which) {
+      // which: "role" | "admin" | "ops"
+      screenRole.classList.add("hidden");
+      screenAdminLogin.classList.add("hidden");
+      screenOps.classList.add("hidden");
+      if (which === "role") screenRole.classList.remove("hidden");
+      if (which === "admin") screenAdminLogin.classList.remove("hidden");
+      if (which === "ops") screenOps.classList.remove("hidden");
+    }
+
+    function fmtGs(n) {
+      try { return "Gs. " + Number(n).toLocaleString("es-PY"); } catch { return "Gs. " + n; }
+    }
+
+    async function loadConfig() {
+      try {
+        const ref = doc(db, "config", "main");
+        const snap = await getDoc(ref);
+        if (snap.exists()) {
+          const d = snap.data();
+          cfg = {
+            tarifa_hora: Number(d.tarifa_hora ?? 5000),
+            bano_precio: Number(d.bano_precio ?? 2000),
+            transfer_banco: String(d.transferencia ?? d.transfer_banco ?? ""),
+            transfer_cuenta: String(d.transfer_cuenta ?? ""),
+            transfer_titular: String(d.transfer_titular ?? "")
+          };
+        }
+      } catch (e) {
+        console.log("No se pudo leer config:", e);
+      }
+
+      cfgTarifa.textContent = fmtGs(cfg.tarifa_hora) + " / hora o fracción";
+      cfgBano.textContent = fmtGs(cfg.bano_precio) + " por persona";
+      cfgBanco.textContent = cfg.transfer_banco || "-";
+      cfgCuenta.textContent = cfg.transfer_cuenta || "-";
+      cfgTitular.textContent = cfg.transfer_titular || "-";
+    }
+
+    // Regla: hora o fracción con tarifa desde config
+    function calcularMontoGs(entradaMs, salidaMs) {
+      const minutos = Math.max(0, Math.ceil((salidaMs - entradaMs) / 60000));
+      const horas = Math.max(1, Math.ceil(minutos / 60));
+      return horas * cfg.tarifa_hora;
+    }
+
+    // Mostrar/ocultar datos de transferencia según método
+    document.getElementById("metodoPago").addEventListener("change", () => {
+      const metodo = document.getElementById("metodoPago").value;
+      cfgTransfer.classList.toggle("hidden", metodo !== "TRANSFERENCIA");
+    });
+
+    // Botones pantalla rol
+    document.getElementById("btnGoOperador").addEventListener("click", async () => {
+      roleMsg.textContent = "";
+      try {
+        await signInAnonymously(auth);
+        localStorage.setItem("e1637_role", "OPERADOR");
+      } catch (e) {
+        roleMsg.textContent = "ERROR Operador: " + (e?.code || "") + " " + (e?.message || e);
+      }
+    });
+
+    document.getElementById("btnGoAdmin").addEventListener("click", () => {
+      roleMsg.textContent = "";
+      showScreen("admin");
+      localStorage.setItem("e1637_role", "ADMIN");
+    });
+
+    document.getElementById("btnBackRole").addEventListener("click", () => {
+      adminMsg.textContent = "";
+      showScreen("role");
+    });
+
+    document.getElementById("btnAdminLogin").addEventListener("click", async () => {
+      adminMsg.textContent = "";
+      const email = document.getElementById("adminEmail").value.trim();
+      const pass = document.getElementById("adminPass").value;
+      if (!email || !pass) {
+        adminMsg.textContent = "Falta email o contraseña.";
+        return;
+      }
+      try {
+        await signInWithEmailAndPassword(auth, email, pass);
+      } catch (e) {
+        adminMsg.textContent = "ERROR Admin: " + (e?.code || "") + " " + (e?.message || e);
+      }
+    });
+
+    document.getElementById("btnLogout").addEventListener("click", async () => {
+      await signOut(auth);
+      localStorage.removeItem("e1637_role");
+      showScreen("role");
+      setStatus("Sin sesión");
+    });
+
+    // Auth state -> decide pantalla
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        // Sin sesión: mostrar elección
+        showScreen("role");
+        setStatus("Sin sesión | " + (navigator.onLine ? "Online" : "Offline"));
+        return;
+      }
+
+      // Con sesión: cargar config y mostrar operación
+      await loadConfig();
+      showScreen("ops");
+
+      const role = localStorage.getItem("e1637_role") || (user.isAnonymous ? "OPERADOR" : "ADMIN");
+      setStatus(
+        role + " conectado (ID interno): " + user.uid + " | " + (navigator.onLine ? "Online" : "Offline")
+      );
+    });
+
+    // ENTRADA (con errores visibles)
+    document.getElementById("btnEntrada").addEventListener("click", async () => {
+      const tipo = document.getElementById("tipo").value;
+      const placa = document.getElementById("placa").value.trim().toUpperCase();
+      const slot = document.getElementById("slot").value.trim();
+      const msg = document.getElementById("entradaMsg");
+      msg.textContent = "";
+
+      if (!slot) { msg.textContent = "Falta Slot (obligatorio)."; return; }
+      if (!placa) { msg.textContent = "Falta patente/chapa."; return; }
+
+      try {
+        const docRef = await addDoc(collection(db, "estadas"), {
+          tipo,
+          placa,
+          slot,
+          esMensual: (tipo === "MENSUAL"),
+          entradaAt: serverTimestamp(),
+          salidaAt: null,
+          metodoPago: null,
+          montoGs: 0,
+          estado: "ABIERTA",
+          creadoPor: auth.currentUser?.uid || null,
+          creadoEn: serverTimestamp()
+        });
+
+        msg.textContent = "Entrada registrada. ID de estadía: " + docRef.id;
+        document.getElementById("idEstadia").value = docRef.id;
+      } catch (e) {
+        console.error("ERROR ENTRADA:", e);
+        msg.textContent = "ERROR ENTRADA: " + (e?.code || "") + " " + (e?.message || e);
+      }
+    });
+
+    // SALIDA (con errores visibles)
+    document.getElementById("btnSalida").addEventListener("click", async () => {
+      const id = document.getElementById("idEstadia").value.trim();
+      const metodoPago = document.getElementById("metodoPago").value;
+      const msg = document.getElementById("salidaMsg");
+      msg.textContent = "";
+
+      if (!id) { msg.textContent = "Falta ID de estadía."; return; }
+
+      try {
+        const ref = doc(db, "estadas", id);
+        const snap = await getDoc(ref);
+        if (!snap.exists()) { msg.textContent = "No existe ese ID."; return; }
+
+        const data = snap.data();
+        const salidaMs = Date.now();
+
+        let monto = 0;
+        if (!data.esMensual) {
+          const entrada = data.entradaAt?.toMillis?.();
+          if (entrada) monto = calcularMontoGs(entrada, salidaMs);
+          else monto = cfg.tarifa_hora; // fallback mínimo
+        }
+
+        await updateDoc(ref, {
+          salidaAt: serverTimestamp(),
+          metodoPago,
+          montoGs: monto,
+          estado: "CERRADA",
+          cerradoPor: auth.currentUser?.uid || null,
+          cerradoEn: serverTimestamp()
+        });
+
+        if (metodoPago === "TRANSFERENCIA") cfgTransfer.classList.remove("hidden");
+
+        msg.textContent = data.esMensual
+          ? "Salida registrada (Mensual: no cobra)."
+          : ("Salida registrada. Total: " + fmtGs(monto));
+      } catch (e) {
+        console.error("ERROR SALIDA:", e);
+        msg.textContent = "ERROR SALIDA: " + (e?.code || "") + " " + (e?.message || e);
+      }
+    });
+
+    // BAÑO (con errores visibles)
+    document.getElementById("btnBano").addEventListener("click", async () => {
+      const msg = document.getElementById("banoMsg");
+      msg.textContent = "";
+
+      const n = Number(document.getElementById("banoPersonas").value || "0");
+      if (!n || n < 1) { msg.textContent = "Cantidad inválida."; return; }
+
+      const monto = n * cfg.bano_precio;
+
+      try {
+        await addDoc(collection(db, "ventas_extra"), {
+          tipo: "BANO",
+          personas: n,
+          montoGs: monto,
+          creadoPor: auth.currentUser?.uid || null,
+          creadoEn: serverTimestamp()
+        });
+
+        msg.textContent = "Baño registrado. Total: " + fmtGs(monto);
+      } catch (e) {
+        console.error("ERROR BAÑO:", e);
+        msg.textContent = "ERROR BAÑO: " + (e?.code || "") + " " + (e?.message || e);
+      }
+    });
+
+    // Si el usuario recarga sin sesión, mostrar rol
+    // (esto evita “entrar directo” si aún no eligió)
+    if (!auth.currentUser) {
+      showScreen("role");
+      setStatus("Sin sesión | " + (navigator.onLine ? "Online" : "Offline"));
+    }
+  </script>
+</body>
+</html>
